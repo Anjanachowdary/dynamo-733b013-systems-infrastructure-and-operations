@@ -1,17 +1,15 @@
-<!--
-  This file is the PROMPT handed verbatim to the model that will attempt your task.
-  Replace everything in this comment with your task instruction, then delete the comment.
+There is an Apache-style access log at /app/access.log. Each line is one HTTP request, in the standard combined-log style, e.g.:
 
-  Guidelines:
-  - Write it yourself, as a domain expert. Do NOT generate it with an LLM.
-  - It's a prompt, not a document — no title, no section headers, no excessive Markdown.
-  - Write it the way you'd brief a skilled colleague.
-  - Use absolute paths (e.g. /app/output.txt), never relative paths.
-  - Be explicit about every expected output file and its exact format/schema.
-  - Include everything the agent needs to solve the task — and nothing more (don't
-    hint at or reveal your solution).
-  - Keep it concise (<= 1500 tokens). State the goal and required outputs; skip
-    backstory, roleplay, and filler.
--->
+192.168.0.1 - - [16/Jun/2026:10:00:01 +0000] "GET /index.html HTTP/1.1" 200 1024
 
-Replace this file with your task instruction.
+Parse the log and write a summary report as JSON to /app/report.json, with exactly these three fields:
+
+- total_requests: the total number of requests (lines) in the log.
+- unique_ips: the number of distinct client IP addresses that appear in the log.
+- top_path: the request path (the second token inside the quoted request, e.g. /index.html) that appears most often across all requests.
+
+Success criteria:
+1. /app/report.json exists and contains valid JSON.
+2. total_requests exactly equals the number of requests in /app/access.log.
+3. unique_ips exactly equals the number of distinct client IP addresses in /app/access.log.
+4. top_path exactly equals the most frequently requested path in /app/access.log.

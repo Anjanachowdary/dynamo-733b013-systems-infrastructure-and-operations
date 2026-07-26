@@ -1,38 +1,32 @@
-artifacts = []  # paths the verifier reads from the agent (e.g. ["/app/output.json"]) — must be above the first [section]
+artifacts = ["/app/report.json"]
 
 [task]
-name = "dynamo/your-task-name"  # required format: org/name (Harbor needs the slash); name part lowercase kebab-case, <=3 words
-description = ""                 # one-line summary of the task
+name = "dynamo/log-report"
+description = "Parse an Apache-style access log into a small JSON summary report."
 
 [metadata]
-# --- Pre-seeded for you when this repo was created — DO NOT EDIT ---
-category = "Systems Infrastructure and Operations"                      # diversity category, assigned to your task by the Dynamo team
-subcategory = "Shell and Environment Configuration"                   # diversity subcategory, assigned by the Dynamo team
-# --- Fixed for this dataset — LEAVE AS-IS ---
-model_tested = "Opus-4.8"           # difficulty-benchmarking model (do not change)
-agent_tested = "Terminus-2"        # difficulty-benchmarking agent (do not change)
-# --- You fill these in ---
-# task_objective / artifact_type: pick from .dynamo/diversity-taxonomy.toml (lowercase snake_case).
-task_objective = []                # e.g. ["implement", "debug"]
-artifact_type = []                 # e.g. ["codebase", "configuration_file"]
-expert_time_estimate_hours = 0     # best-case hours for a focused domain expert with the intended insight
-difficulty_explanation = ""        # why this task is hard for agents and humans
-solution_explanation = ""          # high-level approach and key insights
-verification_explanation = ""      # how the tests verify correctness
+category = "data_processing_and_etl"
+subcategory = "text_processing"
+task_objective = ["transform", "generate"]
+artifact_type = ["text_or_log_file", "generated_output_artifact"]
+expert_time_estimate_hours = 0.3
+model_tested = "GPT-5.4"
+agent_tested = "Terminus-2"
+difficulty_explanation = "Requires reading an Apache-style access log line by line, extracting the client IP and request path from each line with basic string and regex parsing, and aggregating three simple statistics (a count, a distinct-value count, and a mode). No external libraries or tricky edge cases are involved, so this is a low-difficulty scripting task."
+solution_explanation = "Read /app/access.log line by line, split each line to get the client IP, extract the request path with a regex on the quoted request portion, tally total lines, unique IPs (a set), and per-path counts (a Counter). Write total_requests, unique_ips, and top_path (the most common path) to /app/report.json."
+verification_explanation = "The verifier recomputes total_requests, unique_ips, and top_path directly from /app/access.log and asserts that /app/report.json exists, is valid JSON, and that each of its three fields exactly matches the independently recomputed value."
 
 [verifier]
-timeout_sec = 120.0                # increase based on your test suite's runtime demands
-# Canonical TB2: the verifier runs in the environment image (no separate tests/Dockerfile).
-# Harbor overlays tests/ at verify time; leave environment_mode unset for this shared model.
+timeout_sec = 120.0
 
 [agent]
-timeout_sec = 120.0                # raise for hard tasks — agents may run for many minutes or hours
+timeout_sec = 120.0
 
 [environment]
-build_timeout_sec = 600.0          # max seconds for the Docker build
-cpus = 1                           # increase for parallel/compute-heavy workloads
-memory_mb = 2048                   # increase for large datasets or in-memory processing
-storage_mb = 10240                 # increase for tasks with large files or build artifacts
-gpus = 0                           # max 1, expect H100
-allow_internet = true              # open internet is available to the agent
-mcp_servers = []                   # optional MCP servers to expose to the agent
+build_timeout_sec = 600.0
+cpus = 1
+memory_mb = 2048
+storage_mb = 10240
+gpus = 0
+allow_internet = false
+mcp_servers = []
