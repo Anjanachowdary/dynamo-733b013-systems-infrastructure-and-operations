@@ -1,0 +1,56 @@
+{
+    "results": {
+        "tool": {
+            "name": "pytest",
+            "version": "8.4.1"
+        },
+        "summary": {
+            "tests": 4,
+            "passed": 4,
+            "failed": 0,
+            "skipped": 0,
+            "pending": 0,
+            "other": 0,
+            "start": 1785179943.9136825,
+            "stop": 1785179943.9414957
+        },
+        "tests": [
+            {
+                "name": "test_outputs.py::test_output_file_exists_and_is_csv",
+                "status": "passed",
+                "duration": 0.0014544280000023946,
+                "start": 1785179943.9292722,
+                "stop": 1785179943.932481,
+                "retries": 0,
+                "file_path": "test_outputs.py"
+            },
+            {
+                "name": "test_outputs.py::test_reported_record_set_matches_policy",
+                "status": "passed",
+                "duration": 0.0007832450000009317,
+                "start": 1785179943.9328713,
+                "stop": 1785179943.9351847,
+                "retries": 0,
+                "file_path": "test_outputs.py"
+            },
+            {
+                "name": "test_outputs.py::test_reported_row_details_are_correct",
+                "status": "passed",
+                "duration": 0.000840414000002454,
+                "start": 1785179943.9353278,
+                "stop": 1785179943.9375958,
+                "retries": 0,
+                "file_path": "test_outputs.py"
+            },
+            {
+                "name": "test_outputs.py::test_policy_is_visible_to_agent",
+                "status": "passed",
+                "duration": 0.0006208679999915034,
+                "start": 1785179943.9379525,
+                "stop": 1785179943.9401534,
+                "retries": 0,
+                "file_path": "test_outputs.py"
+            }
+        ]
+    }
+}

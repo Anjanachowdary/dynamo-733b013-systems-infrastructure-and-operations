@@ -1,20 +1,20 @@
-artifacts = ["/app/report.json"]
+artifacts = ["/app/output/violations.csv"]
 
 [task]
-name = "dynamo/log-report"
-description = "Parse an Apache-style access log into a small JSON summary report."
+name = "dynamo/retention-audit"
+description = "Compute overdue records for deletion from a retention policy and legal-hold dataset."
 
 [metadata]
-category = "data_processing_and_etl"
-subcategory = "text_processing"
-task_objective = ["transform", "generate"]
-artifact_type = ["text_or_log_file", "generated_output_artifact"]
-expert_time_estimate_hours = 0.3
+category = "regulated_knowledge_work_and_business_operations"
+subcategory = "legal_and_compliance"
+task_objective = ["analyze", "generate"]
+artifact_type = ["dataset_or_tabular_file", "generated_output_artifact"]
+expert_time_estimate_hours = 2
 model_tested = "GPT-5.4"
 agent_tested = "Terminus-2"
-difficulty_explanation = "Requires reading an Apache-style access log line by line, extracting the client IP and request path from each line with basic string and regex parsing, and aggregating three simple statistics (a count, a distinct-value count, and a mode). No external libraries or tricky edge cases are involved, so this is a low-difficulty scripting task."
-solution_explanation = "Read /app/access.log line by line, split each line to get the client IP, extract the request path with a regex on the quoted request portion, tally total lines, unique IPs (a set), and per-path counts (a Counter). Write total_requests, unique_ips, and top_path (the most common path) to /app/report.json."
-verification_explanation = "The verifier recomputes total_requests, unique_ips, and top_path directly from /app/access.log and asserts that /app/report.json exists, is valid JSON, and that each of its three fields exactly matches the independently recomputed value."
+difficulty_explanation = "The task requires reading CSV inputs, applying a legal retention policy with category/region rules, legal-hold exemptions, and consent-withdrawal overrides, and producing an exact deletion-violation report. The core challenge is the rule precedence and date arithmetic rather than the syntax of the code."
+solution_explanation = "Load the policy and CSV inputs, parse the audit date and dates from the data files, apply the retention table and the legal-hold and consent-withdrawal exclusion rules, and write /app/output/violations.csv with the overdue records sorted by record_id."
+verification_explanation = "The verifier checks that /app/output/violations.csv exists, has the expected columns, contains the exact policy-compliant rows from the hidden oracle, and that the policy file is visible to the agent."
 
 [verifier]
 timeout_sec = 120.0

@@ -1,64 +1,59 @@
-import json
-from collections import Counter
+import csv
 from pathlib import Path
 
-REPORT_PATH = Path("/app/report.json")
-LOG_PATH = Path("/app/access.log")
+def _resolve_root() -> Path:
+    app_root = Path('/app')
+    if (app_root / 'policy.md').exists() and (app_root / 'data' / 'records.csv').exists():
+        return app_root
+    return Path(__file__).resolve().parents[1] / 'environment'
 
 
-def _expected():
-    """Independently recompute the expected stats straight from the log file so the verifier never trusts the agent's own numbers."""
-    total = 0
-    ips = set()
-    paths = Counter()
-    with open(LOG_PATH) as f:
-        for line in f:
-            line = line.strip()
-            if not line:
-                continue
-            total += 1
-            ips.add(line.split()[0])
-            quoted = line.split('"')[1]
-            parts = quoted.split()
-            if len(parts) >= 2:
-                paths[parts[1]] += 1
-    return total, len(ips), paths.most_common(1)[0][0]
+ROOT = _resolve_root()
+OUTPUT_PATH = ROOT / 'output' / 'violations.csv'
+POLICY_PATH = ROOT / 'policy.md'
+EXPECTED_PATH = Path('/tests/expected_violations.csv') if Path('/tests/expected_violations.csv').exists() else Path(__file__).resolve().parents[0] / 'expected_violations.csv'
 
 
-def _load_report():
-    """Load the agent's JSON report and fail with a clear message if it is missing or malformed."""
-    assert REPORT_PATH.exists(), "no report.json found at /app/report.json"
-    return json.loads(REPORT_PATH.read_text())
+def _load_policy():
+    return POLICY_PATH.read_text(encoding='utf-8')
 
 
-def test_report_contains_exactly_the_required_fields():
-    """instruction.md success criteria 1 and 2: /app/report.json must contain exactly the required schema."""
-    data = _load_report()
-    assert set(data.keys()) == {"total_requests", "unique_ips", "top_path"}
+def _load_output():
+    assert OUTPUT_PATH.exists(), 'missing /app/output/violations.csv'
+    with OUTPUT_PATH.open(newline='', encoding='utf-8') as handle:
+        return list(csv.DictReader(handle))
 
 
-def test_total_requests_matches_log():
-    """instruction.md success criterion 2: total_requests equals the number of requests in /app/access.log."""
-    data = _load_report()
-    expected_total, _, _ = _expected()
-    assert data.get("total_requests") == expected_total, (
-        f"expected total_requests={expected_total}, got {data.get('total_requests')}"
-    )
+def _load_expected():
+    with EXPECTED_PATH.open(newline='', encoding='utf-8') as handle:
+        return list(csv.DictReader(handle))
 
 
-def test_unique_ips_matches_log():
-    """instruction.md success criterion 3: unique_ips equals the number of distinct client IPs in /app/access.log."""
-    data = _load_report()
-    _, expected_ips, _ = _expected()
-    assert data.get("unique_ips") == expected_ips, (
-        f"expected unique_ips={expected_ips}, got {data.get('unique_ips')}"
-    )
+def test_output_file_exists_and_is_csv():
+    """instruction.md success criteria 1 and 2: output file must exist and contain the expected columns."""
+    rows = _load_output()
+    assert rows, 'violations.csv should contain at least one row'
+    assert set(rows[0].keys()) == {'record_id', 'customer_id', 'category', 'region', 'created_date', 'retention_years', 'delete_after', 'reason'}
 
 
-def test_top_path_matches_log():
-    """instruction.md success criterion 4: top_path equals the most frequently requested path in /app/access.log."""
-    data = _load_report()
-    _, _, expected_top = _expected()
-    assert data.get("top_path") == expected_top, (
-        f"expected top_path={expected_top!r}, got {data.get('top_path')!r}"
-    )
+def test_reported_record_set_matches_policy():
+    """instruction.md success criteria 3: only records overdue for deletion and not protected by an active hold are reported."""
+    rows = _load_output()
+    expected = _load_expected()
+    assert len(rows) == len(expected)
+    assert {row['record_id'] for row in rows} == {row['record_id'] for row in expected}
+
+
+def test_reported_row_details_are_correct():
+    """instruction.md success criteria 4: the reported row values and reason match the policy and input data."""
+    rows = _load_output()
+    expected = _load_expected()
+    assert rows == expected
+
+
+def test_policy_is_visible_to_agent():
+    """The agent-visible policy file must be present and contain the required retention rules."""
+    policy = _load_policy()
+    assert 'retention' in policy.lower()
+    assert 'legal hold' in policy.lower()
+    assert 'consent withdrawal' in policy.lower()

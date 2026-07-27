@@ -1,15 +1,5 @@
-There is an Apache-style access log at /app/access.log. Each line is one HTTP request, in the standard combined-log style, e.g.:
+There is a retention compliance dataset at /app/data/, and a normative retention policy at /app/policy.md. Use the policy and the provided CSV files to compute, as of 2026-01-01, which records are overdue for deletion and are not protected by an active legal hold. Write the result as a CSV file at /app/output/violations.csv with exactly these columns, in this order: record_id,customer_id,category,region,created_date,retention_years,delete_after,reason.
 
-192.168.0.1 - - [16/Jun/2026:10:00:01 +0000] "GET /index.html HTTP/1.1" 200 1024
+The policy defines the retention period by category and region, a legal-hold exemption rule, and a consent-withdrawal override rule. Apply the rules exactly as written in the policy. Ignore any records that are under an active legal hold. If a record has a consent withdrawal date that is on or after the record creation date, do not report it. The reason field must be one of the following values: retention_period_expired.
 
-Parse the log and write a summary report as JSON to /app/report.json, with exactly these three fields:
-
-- total_requests: the total number of requests (lines) in the log.
-- unique_ips: the number of distinct client IP addresses that appear in the log.
-- top_path: the request path (the second token inside the quoted request, e.g. /index.html) that appears most often across all requests.
-
-Success criteria:
-1. /app/report.json exists and contains valid JSON.
-2. total_requests exactly equals the number of requests in /app/access.log.
-3. unique_ips exactly equals the number of distinct client IP addresses in /app/access.log.
-4. top_path exactly equals the most frequently requested path in /app/access.log.
+The output must be sorted by record_id in ascending order.
