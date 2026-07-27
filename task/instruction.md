@@ -1,5 +1,17 @@
-There is a retention compliance dataset at /app/data/, and a normative retention policy at /app/policy.md. Use the policy and the provided CSV files to compute, as of 2026-01-01, which records are overdue for deletion and are not protected by an active legal hold. Write the result as a CSV file at /app/output/violations.csv with exactly these columns, in this order: record_id,customer_id,category,region,created_date,retention_years,delete_after,reason.
+<!--
+  This file is the PROMPT handed verbatim to the model that will attempt your task.
+  Replace everything in this comment with your task instruction, then delete the comment.
 
-The policy defines the retention period by category and region, a legal-hold exemption rule, and a consent-withdrawal override rule. Apply the rules exactly as written in the policy. Ignore any records that are under an active legal hold. If a record has a consent withdrawal date that is on or after the record creation date, do not report it. The reason field must be one of the following values: retention_period_expired.
+  Guidelines:
+  - Write it yourself, as a domain expert. Do NOT generate it with an LLM.
+  - It's a prompt, not a document — no title, no section headers, no excessive Markdown.
+  - Write it the way you'd brief a skilled colleague.
+  - Use absolute paths (e.g. /app/output.txt), never relative paths.
+  - Be explicit about every expected output file and its exact format/schema.
+  - Include everything the agent needs to solve the task — and nothing more (don't
+    hint at or reveal your solution).
+  - Keep it concise (<= 1500 tokens). State the goal and required outputs; skip
+    backstory, roleplay, and filler.
+-->
 
-The output must be sorted by record_id in ascending order.
+Replace this file with your task instruction.

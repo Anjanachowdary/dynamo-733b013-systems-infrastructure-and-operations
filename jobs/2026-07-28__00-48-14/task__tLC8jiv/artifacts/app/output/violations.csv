@@ -1,8 +1,0 @@
-record_id,customer_id,category,region,created_date,retention_years,delete_after,reason
-1,C001,customer_records,North America,2020-01-15,3,2023-01-15,retention_period_expired
-3,C003,financial,APAC,2019-03-10,5,2024-03-10,retention_period_expired
-5,C005,healthcare,MEA,2014-07-20,10,2024-07-20,retention_period_expired
-6,C006,customer_records,APAC,2020-11-30,2,2022-11-30,retention_period_expired
-7,C007,financial,North America,2017-09-01,7,2024-09-01,retention_period_expired
-9,C009,customer_records,LATAM,2021-10-10,4,2025-10-10,retention_period_expired
-10,C010,financial,MEA,2017-12-12,8,2025-12-12,retention_period_expired
