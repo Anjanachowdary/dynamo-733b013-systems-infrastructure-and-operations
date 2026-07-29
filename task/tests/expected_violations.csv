@@ -1,6 +1,5 @@
 record_id,customer_id,category,region,created_date,effective_retention_years,delete_after,violation_reason
 3,C003,financial,APAC,2019-03-10,6,2025-03-10,statutory_floor_applied
 5,C005,healthcare,APAC,2014-07-20,5,2019-07-20,statutory_floor_applied
-6,C006,customer_records,EU,2018-11-30,7,2025-11-30,statutory_floor_applied
 7,C007,financial,US,2017-09-01,7,2024-09-01,statutory_floor_applied
 10,C010,healthcare,EU,2017-12-12,8,2025-12-12,statutory_floor_applied

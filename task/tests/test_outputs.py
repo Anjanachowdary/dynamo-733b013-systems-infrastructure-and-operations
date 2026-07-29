@@ -51,3 +51,4 @@ def test_policy_is_visible_to_agent():
     assert 'default_retention_periods' in policy
     assert 'statutory_minimums' in policy
     assert 'consent_withdrawal_acceleration_days' in policy
+    assert policy.get('hold_tolling_behavior') == 'extend_deadline_to_hold_end'

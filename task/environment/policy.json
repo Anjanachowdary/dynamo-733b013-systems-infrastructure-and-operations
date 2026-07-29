@@ -35,5 +35,6 @@
     }
   },
   "consent_withdrawal_acceleration_days": 30,
-  "legal_hold_override": true
+  "legal_hold_override": true,
+  "hold_tolling_behavior": "extend_deadline_to_hold_end"
 }
