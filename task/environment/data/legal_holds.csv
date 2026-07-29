@@ -1,3 +1,4 @@
-record_id,hold_start_date,hold_end_date
-4,2025-01-01,2026-12-31
-8,2024-01-01,2025-01-01
+hold_id,record_id,start_date,end_date,reason
+H1,4,2025-01-01,2026-12-31,litigation
+H2,6,2024-01-01,2026-06-30,investigation
+H3,9,2023-01-01,2026-06-01,regulatory_review

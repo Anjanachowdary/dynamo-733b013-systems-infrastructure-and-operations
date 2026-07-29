@@ -1,0 +1,39 @@
+{
+  "audit_date": "2026-07-01",
+  "default_retention_periods": {
+    "customer_records": {
+      "EU": 5,
+      "US": 7,
+      "APAC": 3
+    },
+    "financial": {
+      "EU": 4,
+      "US": 6,
+      "APAC": 5
+    },
+    "healthcare": {
+      "EU": 6,
+      "US": 8,
+      "APAC": 4
+    }
+  },
+  "statutory_minimums": {
+    "customer_records": {
+      "EU": 7,
+      "US": 5,
+      "APAC": 4
+    },
+    "financial": {
+      "EU": 5,
+      "US": 7,
+      "APAC": 6
+    },
+    "healthcare": {
+      "EU": 8,
+      "US": 10,
+      "APAC": 5
+    }
+  },
+  "consent_withdrawal_acceleration_days": 30,
+  "legal_hold_override": true
+}
