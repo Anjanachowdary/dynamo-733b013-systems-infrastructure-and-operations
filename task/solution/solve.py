@@ -49,13 +49,21 @@ def load_policy() -> dict:
         return json.load(handle)
 
 
-def is_active_hold(hold: dict, created_date: date) -> bool:
+def active_hold_window(hold: dict) -> tuple[date, date] | None:
     start_date = parse_date(hold.get('start_date'))
     end_date = parse_date(hold.get('end_date'))
-    if start_date is None:
+    if start_date is None or end_date is None:
+        return None
+    if end_date < start_date:
+        return None
+    return start_date, end_date
+
+
+def is_active_hold(hold: dict) -> bool:
+    window = active_hold_window(hold)
+    if window is None:
         return False
-    if end_date is None:
-        return start_date <= AUDIT_DATE
+    start_date, end_date = window
     return start_date <= AUDIT_DATE <= end_date
 
 
@@ -66,7 +74,7 @@ def add_years(value: date, years: int) -> date:
         return value + timedelta(days=365 * years)
 
 
-def resolve_retention(record: dict, policy: dict, hold: dict | None, withdrawal_date: date | None) -> tuple[int, date, str | None]:
+def resolve_retention(record: dict, policy: dict, holds: list[dict], withdrawal_date: date | None) -> tuple[int, date, str | None]:
     category = record['category']
     region = record['region']
     created_date = parse_date(record['created_date'])
@@ -77,23 +85,35 @@ def resolve_retention(record: dict, policy: dict, hold: dict | None, withdrawal_
     statutory_floor = policy['statutory_minimums'][category][region]
     consent_acceleration = policy['consent_withdrawal_acceleration_days']
 
-    if hold is not None and is_active_hold(hold, created_date):
-        return max(default_period, statutory_floor), add_years(created_date, max(default_period, statutory_floor)), 'legal_hold_override'
+    retention_years = max(default_period, statutory_floor)
+    base_delete_after = add_years(created_date, retention_years)
+    effective_delete_after = base_delete_after
+    reason = 'retention_period_expired'
 
-    retention_years = default_period
-    reason = None
-
-    if statutory_floor > retention_years:
-        retention_years = statutory_floor
+    if statutory_floor > default_period:
         reason = 'statutory_floor_applied'
 
-    if withdrawal_date is not None and withdrawal_date >= created_date:
+    active_hold_end_dates = []
+    for hold in holds:
+        window = active_hold_window(hold)
+        if window is not None:
+            start_date, end_date = window
+            if start_date <= AUDIT_DATE <= end_date:
+                active_hold_end_dates.append(end_date)
+
+    if active_hold_end_dates:
+        effective_delete_after = max(base_delete_after, max(active_hold_end_dates))
+        reason = 'hold_tolling_applied'
+    elif withdrawal_date is not None and created_date <= withdrawal_date < base_delete_after:
         accelerated_date = withdrawal_date + timedelta(days=consent_acceleration)
         if accelerated_date <= AUDIT_DATE:
-            return retention_years, accelerated_date, 'consent_withdrawal_accelerated'
+            effective_delete_after = accelerated_date
+            reason = 'consent_withdrawal_accelerated'
 
-    delete_after = add_years(created_date, retention_years)
-    return retention_years, delete_after, reason or 'retention_period_expired'
+    if effective_delete_after <= AUDIT_DATE:
+        return retention_years, effective_delete_after, reason
+
+    return retention_years, effective_delete_after, None
 
 
 def main() -> None:
@@ -102,7 +122,9 @@ def main() -> None:
     withdrawals = load_withdrawals()
     policy = load_policy()
 
-    hold_lookup = {item['record_id']: item for item in holds}
+    hold_lookup = {}
+    for hold in holds:
+        hold_lookup.setdefault(hold['record_id'], []).append(hold)
     violations = []
 
     for record in records:
@@ -111,11 +133,11 @@ def main() -> None:
         if created_date is None:
             continue
 
-        hold = hold_lookup.get(record_id)
+        hold_records = hold_lookup.get(record_id, [])
         withdrawal_date = withdrawals.get(record['customer_id'])
-        retention_years, delete_after, violation_reason = resolve_retention(record, policy, hold, withdrawal_date)
+        retention_years, delete_after, violation_reason = resolve_retention(record, policy, hold_records, withdrawal_date)
 
-        if violation_reason == 'legal_hold_override':
+        if violation_reason is None:
             continue
 
         if delete_after <= AUDIT_DATE:
