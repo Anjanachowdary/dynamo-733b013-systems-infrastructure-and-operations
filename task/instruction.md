@@ -1,10 +1,10 @@
 There is a synthetic corporate records compliance dataset at /app/data/, and a normative policy at /app/policy.json. Analyze the records, legal-hold windows, and consent withdrawal dates against the policy using the fixed audit date 2026-07-01.
 
-Resolve the rules in the following precedence order: Litigation Hold > Statutory Minimum Floor > Consent Withdrawal Acceleration > Default Retention Period. A record is overdue for deletion when its effective deletion date is on or before the audit date.
+Resolve the rules in the following precedence order: active legal hold tolling > statutory minimum floor > consent withdrawal acceleration > default retention period. A record is overdue for deletion when its effective deletion date is on or before the audit date.
 
 Write the result as a CSV file at /app/output/violations.csv with exactly these columns, in this order: record_id,customer_id,category,region,created_date,effective_retention_years,delete_after,violation_reason.
 
-The output must be sorted by record_id in ascending order. The violation_reason field must be one of the following values: retention_period_expired, consent_withdrawal_accelerated, legal_hold_override, statutory_floor_applied, hold_tolling_applied.
+The output must be sorted by record_id in ascending order. The violation_reason field must be one of the following values: retention_period_expired, consent_withdrawal_accelerated, statutory_floor_applied, hold_tolling_applied.
 
 Interpret the policy precisely:
 - A legal hold is only active for the date window stated in the hold record. A hold that ends before the audit date does not protect the record at audit time.

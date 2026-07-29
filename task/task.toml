@@ -9,10 +9,10 @@ category = "regulated_knowledge_work_and_business_operations"
 subcategory = "legal_and_compliance"
 task_objective = ["analyze", "generate"]
 artifact_type = ["dataset_or_tabular_file", "generated_output_artifact"]
-expert_time_estimate_hours = 2
+expert_time_estimate_hours = 4
 model_tested = "GPT-5.4"
 agent_tested = "Terminus-2"
-difficulty_explanation = "This task requires reconciling overlapping temporal rules rather than applying a single obvious pipeline: records have category/region retention periods, date-windowed legal holds that suspend retention clocks, and consent-withdrawal acceleration that can shorten the effective deletion deadline. The solver must reason about the correct precedence and date arithmetic to produce an exact report."
+difficulty_explanation = "This task requires reconciling overlapping temporal rules rather than applying a single obvious pipeline: records have category/region retention periods, date-windowed legal holds that suspend retention clocks, and consent-withdrawal acceleration that can shorten the effective deletion deadline. The solver must reason about the correct precedence and date arithmetic for multiple competing rules to produce an exact report."
 solution_explanation = "Load the policy and CSV inputs, parse the audit date and all relevant dates, evaluate legal-hold windows with hold-tolling semantics, apply statutory minimum floors and consent-withdrawal acceleration where appropriate, and write /app/output/violations.csv with the overdue records sorted by record_id."
 verification_explanation = "The verifier checks that /app/output/violations.csv exists, has the expected columns, and matches the exact oracle rows for the hidden reference solution."
 
